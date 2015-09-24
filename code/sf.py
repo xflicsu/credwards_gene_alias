@@ -5,10 +5,18 @@ data = {'human':(DATA + 'HumanErythroidStagesDataset.csv',),
         'mouse':(DATA + 'MouseErythroidStagesDataset.csv',
                  DATA + 'MouseMEP-MK-ErythDataset.csv')}
 
+rule downloadEnsSyn:
+    """Download ensembl synonyms"""
+    output: DATA + 'ensemblSyn'
+    shell: """mysql --user=genome -N --host=genome-mysql.cse.ucsc.edu -A -D hg19 -e "select ensGene.name, name2, value from ensGene, ensemblToGeneName where ensGene.name = ensemblToGeneName.name" > {output}"""
+
+           ens = DATA + 'ensemblSyn'
+
 rule getGenes:
     input: DATA + 'HumanErythroidStagesDataset.csv',
            DATA + 'MouseErythroidStagesDataset.csv',
            DATA + 'MouseMEP-MK-ErythDataset.csv'
+
     output: ens = WORK + 'geneLs/{species}.ens',
             gene = WORK + 'geneLs/{species}.gene'
     run: 
